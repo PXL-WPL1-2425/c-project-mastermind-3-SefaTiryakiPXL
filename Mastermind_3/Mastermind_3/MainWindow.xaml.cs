@@ -196,10 +196,15 @@ namespace Mastermind_3
         }
         private void CorrecteInputSpeler()
         {
-            MessageBox.Show($"Juist!! In {attempts} pogingen");
-            RegistreerHighscore();
             currentPlayerIndex++;
-
+            string nextPlayer = currentPlayerIndex < playerNames.Count ? playerNames[currentPlayerIndex] : "niemand";
+            // Bepaal de volgende speler
+            MessageBox.Show(
+                $"Juist! De code is gekraakt in {attempts} pogingen.\nNu is speler {nextPlayer} aan de beurt.",
+                $"Mastermind - {playerName}", // titel mastermind + spelerName
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            // als currentPlayerIndex kleiner is dan playerNames dan zijn er nog spelers
             if (currentPlayerIndex < playerNames.Count)
             {
                 playerName = playerNames[currentPlayerIndex];
@@ -263,10 +268,14 @@ namespace Mastermind_3
         }
         private void BerichtGameOver()
         {
-            MessageBox.Show($"Gefaald!! De code is: {string.Join(", ", secretCode)}");
-            RegistreerHighscore();
-
             currentPlayerIndex++;
+            string nextPlayer = currentPlayerIndex < playerNames.Count ? playerNames[currentPlayerIndex] : "niemand";
+
+            MessageBox.Show(
+                $"Gefaald! De code was: {string.Join(", ", secretCode)}.\nNu is speler {nextPlayer} aan de beurt.",
+                $"Mastermind - {playerName}",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
 
             if (currentPlayerIndex < playerNames.Count)
             {
