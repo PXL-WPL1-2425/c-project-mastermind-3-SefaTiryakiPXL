@@ -13,12 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.VisualBasic;
-
 namespace Mastermind_3
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private int maxAttempts; // Dynamisch aantal pogingen
@@ -32,7 +28,7 @@ namespace Mastermind_3
         private string[] highscores; // Array voor highscores
         private List<string> playerNames; // Lijst voor meerdere namen
         private int currentPlayerIndex; // Bekijkt de speler die nu speeltv
-
+        private int highscoreCount = 0; // Houdt het aantal gespeelde highscores bij
         public MainWindow()
         {
             InitializeComponent();
@@ -40,7 +36,6 @@ namespace Mastermind_3
             highscores = new string[15]; // Maximaal 15 highscores
             StartGames();
         }
-
         private void StartGames()
         {
             playerNames = GetPlayerGuess();
@@ -284,6 +279,9 @@ namespace Mastermind_3
             currentPlayerIndex++;
             string nextPlayer = currentPlayerIndex < playerNames.Count ? playerNames[currentPlayerIndex] : "niemand";
             // Bepaal de volgende speler
+
+            RegistreerHighscore(playerName, score, attempts);
+
             MessageBox.Show(
                 $"Juist! De code is gekraakt in {attempts} pogingen.\nNu is speler {nextPlayer} aan de beurt.",
                 $"Mastermind - {playerName}", // titel mastermind + spelerName
@@ -308,26 +306,25 @@ namespace Mastermind_3
 
             for (int i = 0; i < 4; i++)
             {
-                if (playerGuess[i] == secretCode[i])
+                if (playerGuess[i] == secretCode[i]) 
                 {
-                    SetBorderColor(i, Brushes.DarkRed);
+                    SetBorderColor(i, Brushes.DarkRed, "Juiste kleur, juiste positie"); // Rode rand + tooltip
                     feedback += "J ";
                 }
                 else if (secretCode.Contains(playerGuess[i]))
                 {
-                    SetBorderColor(i, Brushes.Wheat);
+                    SetBorderColor(i, Brushes.Wheat, "Juiste kleur, foute positie"); // Witte rand + tooltip
                     scorePenalty += 1;
                     feedback += "FP ";
                 }
-                else
+                else 
                 {
-                    feedback += "F ";
+                    SetBorderColor(i, Brushes.Transparent, "Foute kleur"); // Geen rand + tooltip
                     scorePenalty += 2;
                 }
             }
             return scorePenalty;
         }
-
         private void UpdateGameScore(string[] playerGuess, int scorePenalty)
         {
             score = Math.Max(0, score - scorePenalty); // strafpunten - score ( 0 staat ervoor dat de score niet 0 kan zijn)
@@ -353,6 +350,7 @@ namespace Mastermind_3
         }
         private void BerichtGameOver()
         {
+            RegistreerHighscore(playerName, score, attempts);
             currentPlayerIndex++;
             string nextPlayer = currentPlayerIndex < playerNames.Count ? playerNames[currentPlayerIndex] : "niemand";
 
@@ -373,20 +371,25 @@ namespace Mastermind_3
                 MessageBox.Show("Alle spelers hebben gespeeld!", "Spel Klaar", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
-        private void RegistreerHighscore()
+        private void RegistreerHighscore(string playerName, int score, int attempts)
         {
-            // Bereken de score voor de highscore (score/100)
-            int highscoreCalculation = score / 10;
-
-            // Maak de highscore entry
-            string highscoreEntry = $"{playerName} - {attempts} pogingen - Score: {highscoreCalculation}";
-
-            // Voeg toe aan highscores, schuif andere scores op
-            for (int i = highscores.Length - 1; i > 0; i--)
+            if (highscoreCount < highscores.Length)
             {
-                highscores[i] = highscores[i - 1];
+                highscores[highscoreCount++] = $"{playerName} - Pogingen: {attempts} - Score: {score}";
             }
-            highscores[0] = highscoreEntry;
+        }
+        private void ShowHighscores()
+        {
+            if (highscoreCount == 0)
+            {
+                MessageBox.Show("Er zijn nog geen highscores.", "Mastermind highscores");
+            }
+            else
+            {
+                // Voeg niet-lege entries samen om ze in een lijst weer te geven
+                string highscoreList = string.Join("\n", highscores.Where(h => !string.IsNullOrEmpty(h)));
+                MessageBox.Show(highscoreList, "Mastermind highscores");
+            }
         }
         private void NieuwSpel_Click(object sender, RoutedEventArgs e)
         {
@@ -394,15 +397,7 @@ namespace Mastermind_3
         }
         private void Highscores_Click(object sender, RoutedEventArgs e)
         {
-            string highscoresTekst = "Highscores:\n\n";
-            for (int i = 0; i < highscores.Length; i++)
-            {
-                if (!string.IsNullOrWhiteSpace(highscores[i]))
-                {
-                    highscoresTekst += $"{i + 1}. {highscores[i]}\n";
-                }
-            }
-            MessageBox.Show(highscoresTekst, "Highscores", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowHighscores();
         }
         private void Afsluiten_Click(object sender, RoutedEventArgs e)
         {
@@ -448,24 +443,30 @@ namespace Mastermind_3
                     return Brushes.Transparent;
             }
         }
-        private void SetBorderColor(int index, Brush color)
+        private void SetBorderColor(int index, Brush color, string tooltip)
         {
             switch (index)
             {
                 case 0:
                     kleur1Border.BorderBrush = color;
+                    kleur1Border.ToolTip = tooltip; // Voeg de tooltip toe
                     break;
                 case 1:
                     kleur2Border.BorderBrush = color;
+                    kleur2Border.ToolTip = tooltip; // Voeg de tooltip toe
                     break;
                 case 2:
                     kleur3Border.BorderBrush = color;
+                    kleur3Border.ToolTip = tooltip; // Voeg de tooltip toe
                     break;
                 case 3:
                     kleur4Border.BorderBrush = color;
+                    kleur4Border.ToolTip = tooltip; // Voeg de tooltip toe
                     break;
             }
         }
+
+
         private void SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is ComboBox comboBox && comboBox.SelectedItem is string kleur)
