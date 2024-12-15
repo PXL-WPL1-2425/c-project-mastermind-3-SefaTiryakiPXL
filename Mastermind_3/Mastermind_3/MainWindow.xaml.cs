@@ -323,7 +323,6 @@ namespace Mastermind_3
                     highscoresTekst += $"{i + 1}. {highscores[i]}\n";
                 }
             }
-
             MessageBox.Show(highscoresTekst, "Highscores", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         private void Afsluiten_Click(object sender, RoutedEventArgs e)
