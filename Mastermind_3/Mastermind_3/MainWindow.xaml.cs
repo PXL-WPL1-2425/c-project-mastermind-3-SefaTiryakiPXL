@@ -38,10 +38,10 @@ namespace Mastermind_3
             InitializeComponent();
             maxAttempts = 10; // Standaard 10 pogingen
             highscores = new string[15]; // Maximaal 15 highscores
-            StartGame();
+            StartGames();
         }
 
-        private void StartGame()
+        private void StartGames()
         {
             playerNames = GetPlayerGuess();
 
@@ -113,6 +113,8 @@ namespace Mastermind_3
             gameHistory = new List<List<string>>();
             GenerateSecretCode();
             KleurComboBoxes();
+            UpdateStatusLabel();
+
         }
         private void GenerateSecretCode()
         {
@@ -186,7 +188,11 @@ namespace Mastermind_3
                 BerichtGameOver(); // einde
             }
         }
-
+        private void UpdateStatusLabel()
+        {
+            Score.Content = $"Speler: {playerName} | Pogingen: {attempts}/{maxAttempts} | Score: {score}";
+            // deze werkt met de speler/poging/score van de speler die nu bezig is
+        }
         private bool IsCorrecteGok(string[] playerGuess)
         {
             return playerGuess[0] == secretCode[0] &&
@@ -303,19 +309,9 @@ namespace Mastermind_3
             }
             highscores[0] = highscoreEntry;
         }
-        private void GetPlayerName(object sender, RoutedEventArgs e)
-        {
-            string antwoord = Interaction.InputBox("Geef uw naam", "Invoer", "", 500, 500);
-
-            if (string.IsNullOrEmpty(antwoord))
-            {
-                MessageBox.Show("Typ alstublieft uw naam", "Foutieve invoer");
-                return; 
-            }
-        }
         private void NieuwSpel_Click(object sender, RoutedEventArgs e)
         {
-            StartGame();
+            StartGames();
         }
         private void Highscores_Click(object sender, RoutedEventArgs e)
         {
