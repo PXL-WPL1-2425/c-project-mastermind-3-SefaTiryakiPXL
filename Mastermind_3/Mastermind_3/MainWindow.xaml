@@ -57,5 +57,6 @@
                 <MenuItem Header="Aantal pogingen" Click="AantalPogingen_Click"/>
             </MenuItem>
         </Menu>
+        <Button Content="Hint kopen" Grid.Row="2" Width="200" Height="50" HorizontalAlignment="Center" VerticalAlignment="Top" Click="HintButton_Click" Margin="0,192,0,0"/>
     </Grid>
 </Window>

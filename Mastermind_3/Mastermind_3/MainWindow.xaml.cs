@@ -148,6 +148,85 @@ namespace Mastermind_3
             string[] playerGuess = GetPlayerGok(); // Geselecteerde code van de speler
             MakeGuess(playerGuess);
         }
+        private void HintButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (score < 15)
+            {
+                MessageBox.Show("Je hebt niet genoeg punten voor een hint!", "Hint", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string hintType = MessageBox.Show(
+                "JA = Wil je een juiste kleur (15 strafpunten) of NEE = een juiste kleur op de juiste plaats (25 strafpunten)?",
+                "Hint kopen",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question) == MessageBoxResult.Yes ? "kleur" : "positie";
+
+            if (hintType == "kleur")
+            {
+                GeefHintKleur();
+                score -= 15;
+            }
+            else
+            {
+                if (score < 25)
+                {
+                    MessageBox.Show("Je hebt niet genoeg punten voor deze hint!", "Hint", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                GeefHintPositie();
+                score -= 25;
+            }
+
+            UpdateStatusLabel(); // Update de status met de nieuwe score
+        }
+        private void GeefHintKleur()
+        {
+            List<string> ongebruikteKleuren = new List<string>();
+            foreach (var kleur in secretCode)
+            {
+                bool kleurGevonden = false;
+                foreach (var gok in gameHistory)
+                {
+                    // Als de kleur in de huidige gok voorkomt
+                    if (gok.Contains(kleur))
+                    {
+                        // kleur is gevonden in een gok
+                        kleurGevonden = true;
+                        break;
+                    }
+                }
+                // Als de kleur niet is gevonden in de goklist
+                if (!kleurGevonden)
+                {
+                    // Voeg de kleur toe aan de lijst van ongebruikte kleuren
+                    ongebruikteKleuren.Add(kleur);
+                }
+            }
+            if (ongebruikteKleuren.Count > 0)
+            {
+                string hintKleur = ongebruikteKleuren[0];
+                // Toon een hint met deze kleur
+                MessageBox.Show($"Een juiste kleur in de code is: {hintKleur}", "Hint", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                // Als er geen ongebruikte kleuren zijn, geef dan een bericht dat alle kleuren al geprobeerd zijn
+                MessageBox.Show("Alle kleuren zijn al geprobeerd!", "Hint", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+        private void GeefHintPositie()
+        {
+            for (int i = 0; i < secretCode.Length; i++)
+            {
+                if (gameHistory.All(gok => gok[i] != secretCode[i]))
+                {
+                    MessageBox.Show($"Een kleur op de juiste plaats is: {secretCode[i]} op positie {i + 1}", "Hint", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+            }
+            MessageBox.Show("Geen nieuwe hints beschikbaar voor posities!", "Hint", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
         private bool AreAllColorsSelected()
         {
